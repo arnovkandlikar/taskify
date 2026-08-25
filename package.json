@@ -1,5 +1,5 @@
 {
-  "name": "np-sde-assessment",
+  "name": "taskify",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -44,5 +44,5 @@
     "wrangler": "4.92.0"
   },
   "type": "module",
-  "displayName": "NP SDE Assessment"
+  "displayName": "Taskify"
 }
