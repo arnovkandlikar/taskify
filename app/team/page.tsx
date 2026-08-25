@@ -38,10 +38,10 @@ type MemberDraft = {
 };
 
 const defaultMembers: TeamMember[] = [
-  { id: "member-1", name: "Arnov K.", role: "Product Lead", email: "arnov@example.com", color: "#ff1e00", created_at: "2026-08-18T12:00:00Z" },
-  { id: "member-2", name: "Maya Chen", role: "Product Designer", email: "maya@example.com", color: "#df6d91", created_at: "2026-08-19T12:00:00Z" },
-  { id: "member-3", name: "Noah Kim", role: "Frontend Engineer", email: "noah@example.com", color: "#3c8fd6", created_at: "2026-08-20T12:00:00Z" },
-  { id: "member-4", name: "Liam Patel", role: "Backend Engineer", email: "liam@example.com", color: "#e78c46", created_at: "2026-08-21T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1", name: "Arnov K.", role: "Product Lead", email: "arnov@example.com", color: "#ff1e00", created_at: "2026-08-18T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2", name: "Maya Chen", role: "Product Designer", email: "maya@example.com", color: "#df6d91", created_at: "2026-08-19T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3", name: "Noah Kim", role: "Frontend Engineer", email: "noah@example.com", color: "#3c8fd6", created_at: "2026-08-20T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4", name: "Liam Patel", role: "Backend Engineer", email: "liam@example.com", color: "#e78c46", created_at: "2026-08-21T12:00:00Z" },
 ];
 
 const colors = ["#ff1e00", "#df6d91", "#3c8fd6", "#e78c46", "#24a476", "#7559dc"];
@@ -63,8 +63,10 @@ function getInitials(name: string) {
 }
 
 function supabaseFromEnv(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://dabeqikhaozsqgtawiyg.supabase.co";
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ?? "sb_publishable_3FbaN1DZGf_SD6o--xWsHg_0w81P4a8";
   return url && key ? createClient(url, key) : null;
 }
 
@@ -178,8 +180,14 @@ export default function TeamPage() {
           if (!session) throw new Error("Guest session unavailable");
           const result = await client.from("team_members").select("*").order("created_at", { ascending: true });
           if (result.error) throw result.error;
+          let memberRows = (result.data as TeamMember[]) ?? [];
+          if (!memberRows.length) {
+            const seeded = await client.from("team_members").upsert(defaultMembers.map((member) => ({ ...member, user_id: session.user.id }))).select();
+            if (seeded.error) throw seeded.error;
+            memberRows = (seeded.data as TeamMember[]) ?? defaultMembers;
+          }
           if (mounted) {
-            setMembers(result.data?.length ? result.data as TeamMember[] : defaultMembers);
+            setMembers(memberRows.length ? memberRows : defaultMembers);
             setDataMode("cloud");
             setReady(true);
           }
