@@ -199,7 +199,7 @@ function formatDate(date: string | null) {
 function dueTone(task: Task) {
   if (!task.due_date || task.status === "done") return "normal";
   const due = new Date(`${task.due_date}T23:59:59`).getTime();
-  const now = new Date("2026-08-24T12:00:00").getTime();
+  const now = Date.now();
   if (due < now) return "overdue";
   if (due - now < 3 * 86400000) return "soon";
   return "normal";
