@@ -34,3 +34,9 @@ With Supabase configured, the app creates an anonymous guest session and uses
 the included row-level-security policies so every guest sees only their own
 tasks. Without environment variables, it remains fully interactive and stores
 demo tasks in the current browser's local storage.
+
+## Deployment
+
+The production frontend is built and deployed through Cloudflare Workers Builds
+from the `main` branch. Cloudflare runs `npm run build` and deploys the
+generated Worker configuration at `dist/server/wrangler.json`.
