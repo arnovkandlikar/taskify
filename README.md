@@ -38,5 +38,6 @@ demo tasks in the current browser's local storage.
 ## Deployment
 
 The production frontend is built and deployed through Cloudflare Workers Builds
-from the `main` branch. Cloudflare runs `npm run build` and deploys the
-generated Worker configuration at `dist/server/wrangler.json`.
+from the `main` branch. The repository root is `.`. Cloudflare runs
+`npm run build` and deploys the generated Worker configuration at
+`dist/server/wrangler.json`.
