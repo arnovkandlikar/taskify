@@ -72,7 +72,7 @@ const columns: { id: Status; label: string; color: string }[] = [
 
 const seedTasks: Task[] = [
   {
-    id: "seed-1",
+    id: "11111111-1111-4111-8111-111111111111",
     title: "Create onboarding flow",
     description: "Map the new-user journey and reduce time to first value.",
     status: "todo",
@@ -85,7 +85,7 @@ const seedTasks: Task[] = [
     created_at: "2026-08-21T14:00:00Z",
   },
   {
-    id: "seed-2",
+    id: "22222222-2222-4222-8222-222222222222",
     title: "Improve empty states",
     description: "Add useful prompts and clear actions throughout the app.",
     status: "todo",
@@ -98,7 +98,7 @@ const seedTasks: Task[] = [
     created_at: "2026-08-22T10:30:00Z",
   },
   {
-    id: "seed-3",
+    id: "33333333-3333-4333-8333-333333333333",
     title: "Build dashboard components",
     description: "Ship the reusable KPI, chart, and activity modules.",
     status: "in_progress",
@@ -111,7 +111,7 @@ const seedTasks: Task[] = [
     created_at: "2026-08-18T16:00:00Z",
   },
   {
-    id: "seed-4",
+    id: "44444444-4444-4444-8444-444444444444",
     title: "Implement search API",
     description: "Support fast title and label search with ranked results.",
     status: "in_progress",
@@ -124,7 +124,7 @@ const seedTasks: Task[] = [
     created_at: "2026-08-19T11:00:00Z",
   },
   {
-    id: "seed-5",
+    id: "55555555-5555-4555-8555-555555555555",
     title: "Polish mobile navigation",
     description: "Make the project navigation feel native on small screens.",
     status: "in_review",
@@ -137,7 +137,7 @@ const seedTasks: Task[] = [
     created_at: "2026-08-20T09:45:00Z",
   },
   {
-    id: "seed-6",
+    id: "66666666-6666-4666-8666-666666666666",
     title: "Set up analytics events",
     description: "Track activation, task creation, and workflow completion.",
     status: "done",
@@ -150,7 +150,7 @@ const seedTasks: Task[] = [
     created_at: "2026-08-15T12:00:00Z",
   },
   {
-    id: "seed-7",
+    id: "77777777-7777-4777-8777-777777777777",
     title: "Document API conventions",
     description: "Capture naming, pagination, errors, and versioning decisions.",
     status: "done",
@@ -174,10 +174,10 @@ const labelColors: Record<string, string> = {
 };
 
 const defaultMembers: TeamMember[] = [
-  { id: "member-1", name: "Arnov K.", role: "Product Lead", email: "arnov@example.com", color: "#ff1e00", created_at: "2026-08-18T12:00:00Z" },
-  { id: "member-2", name: "Maya Chen", role: "Product Designer", email: "maya@example.com", color: "#df6d91", created_at: "2026-08-19T12:00:00Z" },
-  { id: "member-3", name: "Noah Kim", role: "Frontend Engineer", email: "noah@example.com", color: "#3c8fd6", created_at: "2026-08-20T12:00:00Z" },
-  { id: "member-4", name: "Liam Patel", role: "Backend Engineer", email: "liam@example.com", color: "#e78c46", created_at: "2026-08-21T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1", name: "Arnov K.", role: "Product Lead", email: "arnov@example.com", color: "#ff1e00", created_at: "2026-08-18T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2", name: "Maya Chen", role: "Product Designer", email: "maya@example.com", color: "#df6d91", created_at: "2026-08-19T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3", name: "Noah Kim", role: "Frontend Engineer", email: "noah@example.com", color: "#3c8fd6", created_at: "2026-08-20T12:00:00Z" },
+  { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4", name: "Liam Patel", role: "Backend Engineer", email: "liam@example.com", color: "#e78c46", created_at: "2026-08-21T12:00:00Z" },
 ];
 
 function getInitials(name: string) {
@@ -206,8 +206,10 @@ function dueTone(task: Task) {
 }
 
 function supabaseFromEnv(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://dabeqikhaozsqgtawiyg.supabase.co";
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ?? "sb_publishable_3FbaN1DZGf_SD6o--xWsHg_0w81P4a8";
   return url && key ? createClient(url, key) : null;
 }
 
@@ -455,10 +457,21 @@ export default function Home() {
           if (!session) throw new Error("Guest session unavailable");
           const result = await client.from("tasks").select("*").order("created_at", { ascending: true });
           if (result.error) throw result.error;
+          let taskRows = (result.data as Task[]) ?? [];
+          if (!taskRows.length) {
+            const seeded = await client.from("tasks").upsert(seedTasks.map((task) => ({ ...task, user_id: session.user.id }))).select();
+            if (seeded.error) throw seeded.error;
+            taskRows = (seeded.data as Task[]) ?? seedTasks;
+          }
           const memberResult = await client.from("team_members").select("*").order("created_at", { ascending: true });
+          let memberRows = memberResult.error ? [] : (memberResult.data as TeamMember[]) ?? [];
+          if (!memberRows.length) {
+            const seededMembers = await client.from("team_members").upsert(defaultMembers.map((member) => ({ ...member, user_id: session.user.id }))).select();
+            if (!seededMembers.error) memberRows = (seededMembers.data as TeamMember[]) ?? defaultMembers;
+          }
           if (mounted) {
-            setTasks((result.data as Task[]) ?? []);
-            setMembers(memberResult.error || !memberResult.data?.length ? defaultMembers : memberResult.data as TeamMember[]);
+            setTasks(taskRows);
+            setMembers(memberRows.length ? memberRows : defaultMembers);
             setDataMode("cloud");
             setReady(true);
           }
@@ -467,7 +480,7 @@ export default function Home() {
           // Continue with a local demo so the interface remains fully usable.
         }
       }
-      const saved = window.localStorage.getItem("momentum.tasks.v1");
+      const saved = window.localStorage.getItem("taskify.tasks.v1") ?? window.localStorage.getItem("momentum.tasks.v1");
       const savedMembers = window.localStorage.getItem("taskify.members.v1");
       if (mounted) {
         setTasks(saved ? JSON.parse(saved) : seedTasks);
@@ -481,7 +494,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (ready && dataMode === "local") window.localStorage.setItem("momentum.tasks.v1", JSON.stringify(tasks));
+    if (ready && dataMode === "local") window.localStorage.setItem("taskify.tasks.v1", JSON.stringify(tasks));
   }, [tasks, ready, dataMode]);
 
   useEffect(() => {
