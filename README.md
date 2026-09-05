@@ -4,6 +4,8 @@ Taskify is a responsive React Kanban board built for the Next Play Games
 software development assessment. It supports creating, editing, deleting,
 searching, filtering, and dragging tasks between four workflow columns.
 
+**Live app:** https://arnovkandlikar.github.io/taskify/
+
 ## Features
 
 - Four-column drag-and-drop board
@@ -26,6 +28,11 @@ searching, filtering, and dragging tasks between four workflow columns.
 5. Add the project URL and public anon key to `.env.local`.
 6. Run `npm run dev`.
 
+## GitHub Pages deployment
+
+The workflow in `.github/workflows/deploy-pages.yml` creates a static Next.js
+export and publishes it to GitHub Pages whenever `main` changes.
+
 Never add the Supabase service-role key to the frontend or repository.
 
 ## Data behavior
@@ -34,10 +41,3 @@ With Supabase configured, the app creates an anonymous guest session and uses
 the included row-level-security policies so every guest sees only their own
 tasks. Without environment variables, it remains fully interactive and stores
 demo tasks in the current browser's local storage.
-
-## Deployment
-
-The production frontend is built and deployed through Cloudflare Workers Builds
-from the `main` branch. The repository root is `.`. Cloudflare runs
-`npm run build` and deploys the generated Worker configuration at
-`dist/server/wrangler.json`.
