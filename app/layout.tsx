@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://np-sde-assessment.arnovkandlikar.chatgpt.site"),
+  metadataBase: new URL("https://arnovkandlikar.github.io/taskify/"),
   title: "Taskify - Race Control for Work",
   description: "A fast, motorsport-inspired Kanban board that keeps projects moving.",
   openGraph: {
     title: "TASKIFY",
     description: "Work at race pace.",
-    url: "https://np-sde-assessment.arnovkandlikar.chatgpt.site",
+    url: "https://arnovkandlikar.github.io/taskify/",
     siteName: "Taskify",
     type: "website",
     images: [
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     images: ["/og.png"],
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "https://arnovkandlikar.github.io/taskify/favicon.svg",
+    shortcut: "https://arnovkandlikar.github.io/taskify/favicon.svg",
   },
 };
 
